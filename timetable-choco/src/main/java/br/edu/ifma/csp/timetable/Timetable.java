@@ -36,7 +36,7 @@ public class Timetable extends AbstractProblem {
 		new int [] {23, 34}
 	};
 	
-	Integer [] valuesAula = {6, 4, 4, 6, 4, 
+	int [] aulas = {6, 4, 4, 6, 4, 
             4, 4, 4, 4, 4, 4,
             4, 6, 6, 4, 4,
             4, 4, 4, 4, 4,
@@ -64,10 +64,20 @@ public class Timetable extends AbstractProblem {
 		horarios = new IntVar[HorarioData.getHorarios().length];
 		locais = new IntVar[LocalData.getLocais().length];
 		
+		horariosDisciplina = new IntVar[disciplinas.length][];
+		
 		for (int i = 0; i < disciplinas.length; i++) {
 			
 			disciplinas[i] = VF.bounded("D" + (i+1), 0, disciplinas.length - 1, solver);
 			professores[i] = VF.bounded("P" + (i+1), 0, professores.length - 1, solver);
+			
+			horariosDisciplina[i] = new IntVar[aulas[i]];
+			
+			for (int j = 0; j < aulas[i]; j++) {
+				horariosDisciplina[i][j] = VF.bounded("H" + (j+1) + "_" + disciplinas[i].getName(), 0, horarios.length, solver);
+			}
+			
+			solver.post(new AllDifferent(horariosDisciplina[i], "DEFAULT"));
 		}
 		
 		manterDisciplinasComOfertaUnicaConstraint();
