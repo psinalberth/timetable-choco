@@ -30,4 +30,12 @@ public class Timeslot {
 	public void addHorario(IntVar horario) {
 		this.horarios.add(horario);
 	}
+	
+	public void addProfessor(IntVar professor) {
+		this.professor = professor;
+	}
+	
+	public void addDisciplina(IntVar disciplina) {
+		this.disciplina = disciplina;
+	}
 }
