@@ -68,6 +68,8 @@ public class Timetable extends AbstractProblem {
 		horarios = new IntVar[HorarioData.getHorarios().length];
 		locais = new IntVar[LocalData.getLocais().length];
 		
+		horariosDisciplina = new IntVar[disciplinas.length][];
+		
 		for (int i = 0; i < disciplinas.length; i++) {
 			
 			Timeslot timeslot = new Timeslot();
@@ -84,7 +86,7 @@ public class Timetable extends AbstractProblem {
 				timeslot.addHorario(horario);
 			}
 			
-			timeslots.add(timeslot);
+			timeslots.add(timeslot);	
 		}
 		
 		manterDisciplinasComOfertaUnicaConstraint();
