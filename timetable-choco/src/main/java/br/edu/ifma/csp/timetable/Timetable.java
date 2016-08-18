@@ -68,7 +68,7 @@ public class Timetable extends AbstractProblem {
 		horarios = new IntVar[HorarioData.getHorarios().length];
 		locais = new IntVar[LocalData.getLocais().length];
 		
-		horariosDisciplina = new IntVar[disciplinas.length][];
+		horariosDisciplina = new IntVar[HorarioData.getHorarios().length][];
 		
 		for (int i = 0; i < disciplinas.length; i++) {
 			
@@ -80,10 +80,14 @@ public class Timetable extends AbstractProblem {
 			professores[i] = VF.bounded("P" + (i+1), 0, professores.length - 1, solver);
 			timeslot.addProfessor(professores[i]);
 			
+			horariosDisciplina[i] = new IntVar[aulas[i]];
+			
 			for (int j = 0; j < aulas[i]; j++) {
 				
 				IntVar horario = VF.bounded(disciplinas[i].getName() + "_" + "H" + (j+1), 0, horarios.length - 1, solver);
 				timeslot.addHorario(horario);
+				
+				horariosDisciplina[i][j] = horario;
 			}
 			
 			timeslots.add(timeslot);	
@@ -97,13 +101,9 @@ public class Timetable extends AbstractProblem {
 		
 		manterProfessoresComHorarioUnicoConstraint();
 		
-		for (int i = 0; i < professores.length; i++) {
+		for (int j = 0; j < horariosDisciplina.length; j++) {
 			
-			List<IntVar> horarios = getTimeslotsProfessor(professores[i]);
-			
-			if (horarios.size() > 0) {
-				solver.post(new AllDifferent(horarios.toArray(new IntVar[horarios.size()]), "DEFAULT"));
-			}
+			solver.post(new AllDifferent(horariosDisciplina[j], "DEFAULT"));
 		}
 	}
 
@@ -140,6 +140,7 @@ public class Timetable extends AbstractProblem {
 		
 	}
 	
+	@SuppressWarnings("unused")
 	private List<IntVar> getTimeslotsProfessor(IntVar professor) {
 		
 		List<IntVar> slots = new ArrayList<IntVar>();
@@ -179,7 +180,7 @@ public class Timetable extends AbstractProblem {
 					
 					for (int j = 0; j < aulas[i]; j++) {
 						
-//						System.out.println(horarios[j].getValue());
+						System.out.println(horariosDisciplina[i][j].getName() + " = " + HorarioData.getHorarios()[horariosDisciplina[i][j].getValue()]);
 					}
 				}
 				
