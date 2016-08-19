@@ -2,7 +2,6 @@ package br.edu.ifma.csp.propagator;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import org.chocosolver.solver.constraints.Propagator;
 import org.chocosolver.solver.exception.ContradictionException;

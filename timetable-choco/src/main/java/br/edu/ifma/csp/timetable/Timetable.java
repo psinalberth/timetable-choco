@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.chocosolver.samples.AbstractProblem;
 import org.chocosolver.solver.Solver;
-import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.constraints.IntConstraintFactory;
 import org.chocosolver.solver.constraints.nary.alldifferent.AllDifferent;
 import org.chocosolver.solver.variables.IntVar;
@@ -16,7 +15,6 @@ import br.edu.ifma.csp.data.DisciplinaData;
 import br.edu.ifma.csp.data.HorarioData;
 import br.edu.ifma.csp.data.LocalData;
 import br.edu.ifma.csp.data.ProfessorData;
-import br.edu.ifma.csp.propagator.HorarioPropagator;
 
 public class Timetable extends AbstractProblem {
 	
@@ -67,6 +65,7 @@ public class Timetable extends AbstractProblem {
 	IntVar [] professores;
 	IntVar [] horarios;
 	IntVar [] locais;
+	IntVar [][] horariosPeriodo;
 	IntVar [][] horariosProfessor;
 	IntVar [][] horariosDisciplina;
 	IntVar [][] horariosLocal;
@@ -83,6 +82,7 @@ public class Timetable extends AbstractProblem {
 		locais = new IntVar[LocalData.getLocais().length];
 		
 		horariosDisciplina = new IntVar[disciplinas.length][];
+		horariosProfessor = new IntVar[disciplinas.length][];
 		
 		for (int i = 0; i < disciplinas.length; i++) {
 			
@@ -95,6 +95,7 @@ public class Timetable extends AbstractProblem {
 			timeslot.addProfessor(professores[i]);
 			
 			horariosDisciplina[i] = new IntVar[aulas[i]];
+			 
 			
 			for (int j = 0; j < aulas[i]; j++) {
 				
@@ -117,25 +118,31 @@ public class Timetable extends AbstractProblem {
 		
 		manterProfessorQuePossuiPreferenciaConstraint();
 		
-		manterProfessoresComHorarioUnicoConstraint();
+		manterDisciplinasComHorarioUnicoConstraint();
+		
+		manterDisciplinasComHorarioUnicoConstraint();
 		
 		for (int j = 0; j < horariosDisciplina.length; j++) {
-			//solver.post(new AllDifferent(horariosDisciplina[j], "NEQS"));
+			solver.post(new AllDifferent(horariosDisciplina[j], "NEQS"));
 		}
+	}
+
+	private void manterDisciplinasComHorarioUnicoConstraint() {
 		
-		for (int j = 0; j < professores.length; j++) {
-			solver.post(new Constraint("Horario", new HorarioPropagator(professores[j], timeslots)));
-		}
+		horariosPeriodo = new IntVar[periodos.length][];
 		
-		for (int j = 0; j < professores.length; j++) {
+		for (int i = 0, index = 0; i < periodos.length; i++) {
 			
-			IntVar [] horarios = getTimeslotsProfessor(professores[j].getValue()).toArray(new IntVar[getTimeslotsProfessor(professores[j].getValue()).size()]);
+			List<IntVar> horarios = new ArrayList<IntVar>();
 			
-			if (horarios.length > 0) {
-				
-//				solver.post(new AllDifferent(horarios, "NEQS"));
+			for (int j = index; j < index + aulas[index] - 1; j++) {
+				horarios.addAll(timeslots.get(j).getHorarios());
 			}
-		}
+			
+			horariosPeriodo[i] = horarios.toArray(new IntVar[horarios.size()]);
+			solver.post(new AllDifferent(horariosPeriodo[i], "NEQS"));
+			index += aulas[index];
+		}		
 	}
 
 	private void manterHorariosOrdenadosConstraint() {
@@ -184,14 +191,11 @@ public class Timetable extends AbstractProblem {
 		}
 	}
 	
-	private void manterProfessoresComHorarioUnicoConstraint() {
-		
-	}
-	
 	private int [] getDisciplinasPorPeriodo(int periodo) {
 		return periodos[periodo];
 	}
 	
+	@SuppressWarnings("unused")
 	private int getPeriodoDisciplina(int disciplina) {
 		
 		for (int i = 0; i < periodos.length; i++) {
@@ -204,6 +208,26 @@ public class Timetable extends AbstractProblem {
 		}
 		
 		return -1;
+	}
+	
+	@SuppressWarnings("unused")
+	private IntVar [] getHorariosPeriodo(int periodo) {
+		
+		List<IntVar> slots = new ArrayList<IntVar>();
+		
+		int disciplinas [] = getDisciplinasPorPeriodo(periodo);
+		
+		for (int i = 0; i < disciplinas.length; i++) {
+		
+			for (Timeslot timeslot : timeslots) {
+				
+				if (timeslot.getDisciplina().getValue() == disciplinas[i]) {
+					slots.addAll(timeslot.getHorarios());
+				}
+			}
+		}
+		
+		return slots.toArray(new IntVar[slots.size()]);
 	}
 	
 	@SuppressWarnings("unused")
