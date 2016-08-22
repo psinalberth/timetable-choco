@@ -13,7 +13,6 @@ import org.chocosolver.util.ESat;
 
 import br.edu.ifma.csp.data.DisciplinaData;
 import br.edu.ifma.csp.data.HorarioData;
-import br.edu.ifma.csp.data.LocalData;
 import br.edu.ifma.csp.data.ProfessorData;
 
 public class Timetable extends AbstractProblem {
@@ -64,7 +63,6 @@ public class Timetable extends AbstractProblem {
 	IntVar [] disciplinas;
 	IntVar [] professores;
 	IntVar [] horarios;
-	IntVar [] locais;
 	IntVar [][] horariosPeriodo;
 	IntVar [][] horariosProfessor;
 	IntVar [][] horariosDisciplina;
@@ -79,10 +77,8 @@ public class Timetable extends AbstractProblem {
 		disciplinas = new IntVar[DisciplinaData.getDisciplinas().length];
 		professores = new IntVar[DisciplinaData.getDisciplinas().length];
 		horarios = new IntVar[HorarioData.getHorarios().length];
-		locais = new IntVar[LocalData.getLocais().length];
 		
 		horariosDisciplina = new IntVar[disciplinas.length][];
-		horariosProfessor = new IntVar[disciplinas.length][];
 		
 		for (int i = 0; i < disciplinas.length; i++) {
 			
@@ -95,7 +91,6 @@ public class Timetable extends AbstractProblem {
 			timeslot.addProfessor(professores[i]);
 			
 			horariosDisciplina[i] = new IntVar[aulas[i]];
-			 
 			
 			for (int j = 0; j < aulas[i]; j++) {
 				
@@ -105,8 +100,6 @@ public class Timetable extends AbstractProblem {
 				horariosDisciplina[i][j] = horario;
 			}
 			
-			solver.post(new AllDifferent(timeslot.getHorarios().toArray(new IntVar[timeslot.getHorarios().size()]), "NEQS"));
-			
 			timeslots.add(timeslot);	
 		}
 		
@@ -114,16 +107,95 @@ public class Timetable extends AbstractProblem {
 		
 		manterDisciplinasOrdenadasConstraint();
 		
+		manterHorariosAlternadosConstraint();
+		
 		manterHorariosOrdenadosConstraint();
+		
+		manterHorariosConsecutivosConstraint();
 		
 		manterProfessorQuePossuiPreferenciaConstraint();
 		
 		manterDisciplinasComHorarioUnicoConstraint();
 		
-		manterDisciplinasComHorarioUnicoConstraint();
+		manterProfessoresComHorarioUnicoConstraint();
 		
-		for (int j = 0; j < horariosDisciplina.length; j++) {
-			solver.post(new AllDifferent(horariosDisciplina[j], "NEQS"));
+		manterLocaisComHorarioUnicoConstraint();
+	}
+	
+	private void manterHorariosAlternadosConstraint() {
+		
+		for (int i = 0; i < timeslots.size(); i++) {
+			
+			Timeslot timeslot = timeslots.get(i);
+			
+			for (int j = 0; j < timeslot.getHorarios().size(); j++) {
+				
+				IntVar horario1 = timeslot.getHorarios().get(j);
+				IntVar horario2 = null;
+				
+				if (j == timeslot.getHorarios().size() - 1)
+					break;
+				
+				if ((j+2) < timeslot.getHorarios().size() && (j != timeslot.getHorarios().size() - 2)) {
+					
+					horario2 = timeslot.getHorarios().get(2+j);
+					solver.post(IntConstraintFactory.arithm(horario2, "-", horario1, ">=", 10));
+				}
+			}
+		}
+	}
+	
+	/**
+	 * Restrição Forte: <br>
+	 * 
+	 * Deve haver uma quantidade mínima de ofertas de aula consecutivas para uma disciplina. Para o domínio apresentado, 
+	 * o mínimo de aulas é {@code 2}. A partir do conjunto <i>H<sub>i</sub></i> de horários de uma disciplina <i>D</i>, é aplicada
+	 * a restrição {@link IntConstraintFactory #arithm(IntVar, String, IntVar, String, int)}, a qual mantém entre os
+	 * horários <i>H<sub>i1</sub></i> e <i>H<sub>i2</sub></i>, a diferença de valor em 1, ou seja, consecutivos.
+	 */
+
+	private void manterHorariosConsecutivosConstraint() {
+		
+		for (int i = 0; i < timeslots.size(); i++) {
+			
+			Timeslot timeslot = timeslots.get(i);
+			
+			for (int j = 0; j < timeslot.getHorarios().size(); j++) {
+				
+				IntVar horario1 = timeslot.getHorarios().get(j);
+				IntVar horario2 = null;
+				
+				if ((j+1) < timeslot.getHorarios().size()) {
+					
+					horario2 = timeslot.getHorarios().get(++j);
+					solver.post(IntConstraintFactory.arithm(horario2, "-", horario1, "=", 1));
+				}
+			}
+		}
+	}
+	
+	/**
+	 * Restrição Forte: <br>
+	 *  
+	 * Um professor não pode ser selecionado para ministrar duas aulas de disciplinas diferentes
+	 * no mesmo horário. Dado um conjunto de {@code n} horários de um professor, é aplicada a restrição 
+	 * {@link AllDifferent}, a qual mantém um professor com apenas uma ocorrência de horário.
+	 */
+
+	private void manterProfessoresComHorarioUnicoConstraint() {
+		
+		horariosProfessor = new IntVar[preferencias.length][];
+		
+		for (int i = 0; i < preferencias.length; i++) {
+			
+			List<IntVar> horarios = new ArrayList<IntVar>();
+			
+			for (int j = 0; j < preferencias[i].length; j++) {
+				horarios.addAll(timeslots.get(preferencias[i][j]).getHorarios());
+			}
+			
+			horariosProfessor[i] = horarios.toArray(new IntVar[horarios.size()]);
+			solver.post(new AllDifferent(horariosProfessor[i], "NEQS"));
 		}
 	}
 
@@ -135,14 +207,18 @@ public class Timetable extends AbstractProblem {
 			
 			List<IntVar> horarios = new ArrayList<IntVar>();
 			
-			for (int j = index; j < index + aulas[index] - 1; j++) {
+			for (int j = index; j < index + periodos[i].length; j++) {
 				horarios.addAll(timeslots.get(j).getHorarios());
 			}
 			
 			horariosPeriodo[i] = horarios.toArray(new IntVar[horarios.size()]);
 			solver.post(new AllDifferent(horariosPeriodo[i], "NEQS"));
-			index += aulas[index];
+			index += periodos[i].length;
 		}		
+	}
+	
+	private void manterLocaisComHorarioUnicoConstraint() {
+		
 	}
 
 	private void manterHorariosOrdenadosConstraint() {
@@ -229,22 +305,6 @@ public class Timetable extends AbstractProblem {
 		
 		return slots.toArray(new IntVar[slots.size()]);
 	}
-	
-	@SuppressWarnings("unused")
-	private List<IntVar> getTimeslotsProfessor(int professor) {
-		
-		List<IntVar> slots = new ArrayList<IntVar>();
-		
-		for (Timeslot timeslot : timeslots) {
-			
-			if (timeslot.getProfessor().getValue() == professor) {
-				
-				slots.addAll(timeslot.getHorarios());
-			}
-		}
-		
-		return slots;
-	}
 
 	@Override
 	public void configureSearch() {
@@ -259,13 +319,13 @@ public class Timetable extends AbstractProblem {
 	@Override
 	public void prettyOut() {
 		
-		int ic = 0;
+		int count = 0;
 		
 		if (solver.isFeasible() == ESat.TRUE) {
 			
 			do {
 				
-				ic += 1;
+				count += 1;
 				
 				for (int i = 0; i < disciplinas.length; i++) {
 					
@@ -278,7 +338,7 @@ public class Timetable extends AbstractProblem {
 					}
 				}
 				
-			} while (solver.nextSolution() == Boolean.TRUE && ic < 3);
+			} while (solver.nextSolution() == Boolean.TRUE && count < 1);
 			
 		} else {
 			
