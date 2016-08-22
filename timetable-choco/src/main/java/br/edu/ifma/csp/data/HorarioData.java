@@ -12,6 +12,7 @@ public class HorarioData {
 		horarios.add("SEG_1650");
 		horarios.add("SEG_1740");
 		horarios.add("SEG_1830");
+		horarios.add("SEG_1920");
 		horarios.add("SEG_2010");
 		horarios.add("SEG_2100");
 		horarios.add("SEG_2150");
@@ -19,6 +20,7 @@ public class HorarioData {
 		horarios.add("TER_1650");
 		horarios.add("TER_1740");
 		horarios.add("TER_1830");
+		horarios.add("TER_1920");
 		horarios.add("TER_2010");
 		horarios.add("TER_2100");
 		horarios.add("TER_2150");
@@ -26,6 +28,7 @@ public class HorarioData {
 		horarios.add("QUA_1650");
 		horarios.add("QUA_1740");
 		horarios.add("QUA_1830");
+		horarios.add("QUA_1920");
 		horarios.add("QUA_2010");
 		horarios.add("QUA_2100");
 		horarios.add("QUA_2150");
@@ -33,6 +36,7 @@ public class HorarioData {
 		horarios.add("QUI_1650");
 		horarios.add("QUI_1740");
 		horarios.add("QUI_1830");
+		horarios.add("QUI_1920");
 		horarios.add("QUI_2010");
 		horarios.add("QUI_2100");
 		horarios.add("QUI_2150");
@@ -40,6 +44,7 @@ public class HorarioData {
 		horarios.add("SEX_1650");
 		horarios.add("SEX_1740");
 		horarios.add("SEX_1830");
+		horarios.add("SEX_1920");
 		horarios.add("SEX_2010");
 		horarios.add("SEX_2100");
 		horarios.add("SEX_2150");

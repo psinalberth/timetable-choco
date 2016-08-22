@@ -15,6 +15,25 @@ import br.edu.ifma.csp.data.DisciplinaData;
 import br.edu.ifma.csp.data.HorarioData;
 import br.edu.ifma.csp.data.ProfessorData;
 
+/**
+ * Modelo de Timetable utilizado na resolução do Problema de Alocação de Horários do IFMA. <br>
+ * <b>Framework: </b> Choco Solver (v. 3.3.3) <br>
+ * <b>Flow (CSP): </b> <br>
+ * 	<ol>
+ * 		<li>Definir modelo</li>
+ * 		<li>Construir modelo: </li>
+ * 		<ol>
+ * 			<li>Definir variáveis </li>
+ * 			<li>Definir domínios </li>
+ * 			<li>Definir restrições </li>
+ * 		</ol>
+ * 		<li>Definir estratégia de busca </li>
+ * 		<li>Executar busca</li>
+ * 		<li>Recuperar resultado(s)</li>
+ *  </ol>
+ * @author inalberth
+ *
+ */
 public class Timetable extends AbstractProblem {
 	
 	int preferencias [][] = {
@@ -122,6 +141,16 @@ public class Timetable extends AbstractProblem {
 		manterLocaisComHorarioUnicoConstraint();
 	}
 	
+	/**
+	 * <b>Restrição Forte (Pedagógica):</b> <br>
+	 * 
+	 * Restrição complementar à {@link Timetable #manterHorariosConsecutivosConstraint()}.
+	 * Deve haver um intervalo mínimo de dias entre as ofertas consecutivas de aula de uma disciplina. Para o domínio apresentado,
+	 * o intevalo mínimo é de 1 dia. Para satisfazê-la, dado um conjunto de <b>{@code n}</b> horários de uma disciplina <i>D<sub>i</sub></i>, 
+	 * aplica-se a restrição {@link IntConstraintFactory #arithm(IntVar, String, IntVar, String, int)}, a qual mantém entre os
+	 * horários <i>H<sub>i1</sub></i> e <i>H<sub>i2</sub></i>, a diferença de valor resultante em, no mínimo, um dia .
+	 */
+	
 	private void manterHorariosAlternadosConstraint() {
 		
 		for (int i = 0; i < timeslots.size(); i++) {
@@ -146,7 +175,7 @@ public class Timetable extends AbstractProblem {
 	}
 	
 	/**
-	 * Restrição Forte: <br>
+	 * <b>Restrição Forte:</b> <br>
 	 * 
 	 * Deve haver uma quantidade mínima de ofertas de aula consecutivas para uma disciplina. Para o domínio apresentado, 
 	 * o mínimo de aulas é {@code 2}. A partir do conjunto <i>H<sub>i</sub></i> de horários de uma disciplina <i>D</i>, é aplicada
@@ -175,10 +204,10 @@ public class Timetable extends AbstractProblem {
 	}
 	
 	/**
-	 * Restrição Forte: <br>
+	 * <b>Restrição Forte:</b> <br>
 	 *  
 	 * Um professor não pode ser selecionado para ministrar duas aulas de disciplinas diferentes
-	 * no mesmo horário. Dado um conjunto de {@code n} horários de um professor, é aplicada a restrição 
+	 * no mesmo horário. Dado um conjunto de <b>{@code n}</b> horários de um professor, é aplicada a restrição 
 	 * {@link AllDifferent}, a qual mantém um professor com apenas uma ocorrência de horário.
 	 */
 
@@ -198,6 +227,15 @@ public class Timetable extends AbstractProblem {
 			solver.post(new AllDifferent(horariosProfessor[i], "NEQS"));
 		}
 	}
+	
+	/**
+	 * <b>Restrição Forte:</b> <br>
+	 *  
+	 * As ofertas de aula para disciplinas de mesmo período (turma) não devem estar sobrepostas.
+	 * A partir do conjunto <i>D</i> de <b>{@code m}</b> de disciplinas selecionadas e outro conjunto <i>H<sub>D</sub></i> de 
+	 * horários correspondentes, é realizada a associação e agrupamento de todos os horários por turma e, em seguida, aplica-se a 
+	 * restrição {@link AllDifferent}, a qual mantém apenas uma oferta de aula por horário.
+	 */
 
 	private void manterDisciplinasComHorarioUnicoConstraint() {
 		
@@ -218,8 +256,17 @@ public class Timetable extends AbstractProblem {
 	}
 	
 	private void manterLocaisComHorarioUnicoConstraint() {
-		
+		//TODO: Implementar regra para evitar sobreposição de ofertas 
+		//		de aula em horários iguais para disciplinas diferentes.
 	}
+	
+	/**
+	 * <b>Restrição Forte:</b> <br>
+	 *  
+	 * Um professor não pode ser selecionado para ministrar duas aulas de disciplinas diferentes
+	 * no mesmo horário. Dado um conjunto de <b>{@code n}</b> horários de um professor, é aplicada a restrição 
+	 * {@link AllDifferent}, a qual mantém um professor com apenas uma ocorrência de horário.
+	 */
 
 	private void manterHorariosOrdenadosConstraint() {
 		
@@ -239,18 +286,44 @@ public class Timetable extends AbstractProblem {
 			}
 		}
 	}
-
+	
+	/**
+	 * <b>Restrição Forte:</b> <br>
+	 *  
+	 * Um professor só poderá ser selecionado para ministrar apenas as disciplinas para as quais tenha preferência. 
+	 * Dado um um professor <i>P<sub>i<sub></i> e um conjunto <i>D<sub>j<sub></i> disciplinas disponíveis, 
+	 * é utilizada a restrição {@link IntConstraintFactory #member(IntVar, int[])}, a qual é responsável por selecionar
+	 * para uma variável um valor dentre os disponíveis na coleção.
+	 */
+	
 	private void manterProfessorQuePossuiPreferenciaConstraint() {
 		
 		for (int i = 0; i < professores.length; i++) {	
 			solver.post(IntConstraintFactory.member(professores[i], getProfessoresByDisciplina(i)));
 		}
 	}
-
+	
+	/**
+	 * <b>Restrição Forte:</b> <br>
+	 *  
+	 * Uma disciplina só poderá ser ofertada apenas uma vez por semestre. Dado um conjunto de <b>{@code n}</b> disciplinas disponíveis, 
+	 * é aplicada a restrição {@link AllDifferent}, a qual mantém apenas uma oferta de disciplina por semestre.
+	 */
+	
 	private void manterDisciplinasComOfertaUnicaConstraint() {
 		solver.post(new AllDifferent(disciplinas, "DEFAULT"));
 	}
-
+	
+	
+	/**
+	 * <b>Restrição Forte:</b> <br>
+	 *  
+	 * As disciplinas devem ser associadas de acordo com a ordem de períodos (turmas), de modo a otimizar o tempo 
+	 * de resolução do problema. Dado um conjunto de <b>{@code n}</b> disciplinas disponíveis, 
+	 * é aplicada a restrição {@link IntConstraintFactory #arithm(IntVar, String, IntVar, String, int)}, a qual 
+	 * tem por objetivo manter as disciplinas de períodos iniciais antes das turmas avançadas.
+	 */
+	
 	private void manterDisciplinasOrdenadasConstraint() {
 		
 		for (int i = 0; i < disciplinas.length; i++) {
