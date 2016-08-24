@@ -6,6 +6,7 @@ import java.util.List;
 import org.chocosolver.samples.AbstractProblem;
 import org.chocosolver.solver.Solver;
 import org.chocosolver.solver.constraints.IntConstraintFactory;
+import org.chocosolver.solver.constraints.LogicalConstraintFactory;
 import org.chocosolver.solver.constraints.nary.alldifferent.AllDifferent;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.solver.variables.VF;
@@ -58,7 +59,7 @@ public class Timetable extends AbstractProblem {
 	int [] aulas = {
 			
 		6, 4, 4, 6, 4, 
-	    4, 4, 4, 4, 4, 4,
+	    5, 3, 4, 4, 4, 4,
 	    4, 6, 6, 4, 4,
 	    4, 4, 4, 4, 4,
 	    4, 4, 4, 4, 4, 4,
@@ -157,7 +158,59 @@ public class Timetable extends AbstractProblem {
 			
 			Timeslot timeslot = timeslots.get(i);
 			
-			for (int j = 0; j < timeslot.getHorarios().size(); j++) {
+			int aula = aulas[i];
+			
+			if (aula == 6) {
+				
+				IntVar horario1 = timeslot.getHorarios().get(0);
+				IntVar horario2 = timeslot.getHorarios().get(1);
+				IntVar horario3 = timeslot.getHorarios().get(2);
+				IntVar horario4 = timeslot.getHorarios().get(3);
+				IntVar horario5 = timeslot.getHorarios().get(4);
+				IntVar horario6 = timeslot.getHorarios().get(5);
+				
+				solver.post(LogicalConstraintFactory.or(
+								
+								LogicalConstraintFactory.and(
+															 IntConstraintFactory.arithm(horario3, "-", horario1, "=", 2),
+															 //IntConstraintFactory.arithm(horario3, "-", horario2, "=", 1),
+													 		 IntConstraintFactory.arithm(horario4, "-", horario3, ">=", 14),
+													 		 IntConstraintFactory.arithm(horario6, "-", horario4, "=", 2)),
+								
+								LogicalConstraintFactory.and(IntConstraintFactory.arithm(horario3, "-", horario2, ">=", 14),
+															 IntConstraintFactory.arithm(horario5, "-", horario4, ">=", 14)))
+						);
+				
+			} else if (aula == 4) {
+				
+				IntVar horario1 = timeslot.getHorarios().get(0);
+				IntVar horario2 = timeslot.getHorarios().get(1);
+				IntVar horario3 = timeslot.getHorarios().get(2);
+				IntVar horario4 = timeslot.getHorarios().get(3);
+				
+				solver.post(IntConstraintFactory.arithm(horario2, "-", horario1, "=", 1));
+				solver.post(IntConstraintFactory.arithm(horario3, "-", horario2, ">=", 14));
+				solver.post(IntConstraintFactory.arithm(horario4, "-", horario3, "=", 1));
+				
+				/*solver.post(LogicalConstraintFactory.or(
+						
+						LogicalConstraintFactory.and(IntConstraintFactory.arithm(horario2, "-", horario1, "=", 1),
+											 		 IntConstraintFactory.arithm(horario4, "-", horario3, ">=", 14)),
+						
+						LogicalConstraintFactory.and(IntConstraintFactory.arithm(horario3, "-", horario2, ">=", 14),
+													 IntConstraintFactory.arithm(horario5, "-", horario4, ">=", 14)))
+				);*/
+			} else if (aula == 3) {
+				
+				IntVar horario1 = timeslot.getHorarios().get(0);
+				IntVar horario2 = timeslot.getHorarios().get(1);
+				IntVar horario3 = timeslot.getHorarios().get(2);
+				
+				solver.post(IntConstraintFactory.arithm(horario2, "-", horario1, "=", 1));
+				solver.post(IntConstraintFactory.arithm(horario3, "-", horario2, "=", 1));
+			}
+			
+			/*for (int j = 0; j < timeslot.getHorarios().size(); j++) {
 				
 				IntVar horario1 = timeslot.getHorarios().get(j);
 				IntVar horario2 = null;
@@ -168,9 +221,9 @@ public class Timetable extends AbstractProblem {
 				if ((j+2) < timeslot.getHorarios().size() && (j != timeslot.getHorarios().size() - 2)) {
 					
 					horario2 = timeslot.getHorarios().get(2+j);
-					solver.post(IntConstraintFactory.arithm(horario2, "-", horario1, ">=", 10));
+					solver.post(IntConstraintFactory.arithm(horario2, "-", horario1, ">=", 14));
 				}
-			}
+			}*/
 		}
 	}
 	
@@ -189,6 +242,8 @@ public class Timetable extends AbstractProblem {
 			
 			Timeslot timeslot = timeslots.get(i);
 			
+			int aula = aulas[i];
+			
 			for (int j = 0; j < timeslot.getHorarios().size(); j++) {
 				
 				IntVar horario1 = timeslot.getHorarios().get(j);
@@ -197,7 +252,11 @@ public class Timetable extends AbstractProblem {
 				if ((j+1) < timeslot.getHorarios().size()) {
 					
 					horario2 = timeslot.getHorarios().get(++j);
-					solver.post(IntConstraintFactory.arithm(horario2, "-", horario1, "=", 1));
+					//solver.post(IntConstraintFactory.arithm(horario2, "-", horario1, "=", 1));
+					
+					if (j % 2 != 0) {
+						solver.post(IntConstraintFactory.not_member(horario2, new int[]{0, 7, 14, 21, 28}));
+					}
 				}
 			}
 		}
