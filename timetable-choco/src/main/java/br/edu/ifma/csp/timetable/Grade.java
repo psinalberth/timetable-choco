@@ -6,7 +6,7 @@ public class Grade {
 	
 	public Grade(int dias, int horarios) {
 		
-		this.grade = new String[horarios][dias];
+		this.grade = new String[dias][horarios];
 	}
 	
 	public String[][] getGrade() {

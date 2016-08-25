@@ -488,7 +488,7 @@ public class Timetable extends AbstractProblem {
 		}
 		
 		for (int i = 0; i < horas.length; i++) {
-			if (str.split("_")[0].equals(horas[i])) {
+			if (str.split("_")[1].equals(horas[i])) {
 				tokens[1] = i;
 			}
 		}
@@ -500,42 +500,28 @@ public class Timetable extends AbstractProblem {
 		
 		String [] dias = {"SEG", "TER", "QUA", "QUI", "SEX"};
 		String [] horas = {"16:50", "17:40", "18:30", "19:20", "20:10", "21:00", "21:50"};
-		
-		/* int k = 0;
+			 
+		Grade [] grades = new Grade[periodos.length];
 		 
-		 while (k < 5) {*/
-//		for (int k = 0; k < periodos.length; k++) {
+		for (int k = 0; k < periodos.length; k++) { 
+			grades[k] = new Grade(horas.length, dias.length);
+		 }
 			 
-			 Grade [] grades = new Grade[periodos.length];
-			 
-			 for (int k = 0; k < periodos.length; k++) {
-				 
-				 grades[k] = new Grade(dias.length, horarios.length);
-				 
-				 for (int i = 0; i < disciplinas.length; i++) {
-					 
-					 	
-						
-//						String [][][] schedule = new String[periodos.length][horas.length][dias.length];
-						
-//						int k = getPeriodoDisciplina(disciplinas[i].getValue());
-						
-						for (int j = 0; j < aulas[i]; j++) {
-							
-							int [] tokens = getTokens(horariosDisciplina[i][j]);
-							
-							grades[k].getGrade()[tokens[0]][tokens[1]] = getDisciplina(disciplinas[i]);
-						}
-					}
-			 }
-		
+		for (int i = 0; i < disciplinas.length; i++) {
+				
+			int k = getPeriodoDisciplina(disciplinas[i].getValue());
+				
+			for (int j = 0; j < aulas[i]; j++) {
+				
+				int [] tokens = getTokens(horariosDisciplina[i][j]);
+				
+				System.out.println(tokens[0] + "," + tokens[1]);
+				
+				grades[k].getGrade()[tokens[0]][tokens[1]] = getDisciplina(disciplinas[i]);
+			}
+		}
 			
-			 System.out.println(grades.length);
-			
-	/*		k++;
-		}*/
-		
-	//	System.out.println(schedule.length);
+		System.out.println(grades.length);
 	}
 	
 	private String getDisciplina(IntVar disciplina) {
@@ -559,22 +545,33 @@ public class Timetable extends AbstractProblem {
 			
 			do {
 				
-				print();
+			//	print();
 				
 				count += 1;
 				
-//				for (int i = 0; i < disciplinas.length; i++) {
-//					
-//					System.out.print(disciplinas[i].getName() + " = " + getDisciplina(disciplinas[i]) + ", ");
-//					System.out.println(professores[i].getName() + " = " + getProfessor(professores[i]));
-//					
-//					for (int j = 0; j < aulas[i]; j++) {
-//						
-//						System.out.println(horariosDisciplina[i][j].getName() + " = " + getHorario(horariosDisciplina[i][j]));
-//					}
-//				}
-				
-				
+				String [] dias = {"SEG", "TER", "QUA", "QUI", "SEX"};
+				String [] horas = {"16:50", "17:40", "18:30", "19:20", "20:10", "21:00", "21:50"};
+					 
+				Grade [] grades = new Grade[periodos.length];
+				 
+				for (int k = 0; k < periodos.length; k++) { 
+					grades[k] = new Grade(horas.length, dias.length);
+				 }
+					 
+				for (int i = 0; i < disciplinas.length; i++) {
+						
+					int k = getPeriodoDisciplina(disciplinas[i].getValue());
+						
+					for (int j = 0; j < aulas[i]; j++) {
+						
+						int [] tokens = getTokens(horariosDisciplina[i][j]);	
+						grades[k].getGrade()[tokens[1]][tokens[0]] = getDisciplina(disciplinas[i]);
+						
+						System.out.println(tokens[1] + "," + tokens[0]);
+					}
+					
+					System.out.println();
+				}
 				
 				System.out.println("Boo");
 				
