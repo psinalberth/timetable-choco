@@ -14,7 +14,6 @@ import org.chocosolver.util.ESat;
 
 import br.edu.ifma.csp.data.DisciplinaData;
 import br.edu.ifma.csp.data.HorarioData;
-import br.edu.ifma.csp.data.ProfessorData;
 
 /**
  * Modelo de Timetable utilizado na resolução do Problema de Alocação de Horários do IFMA. <br>
@@ -426,7 +425,6 @@ public class Timetable extends AbstractProblem {
 		return periodos[periodo];
 	}
 	
-	@SuppressWarnings("unused")
 	private int getPeriodoDisciplina(int disciplina) {
 		
 		for (int i = 0; i < periodos.length; i++) {
@@ -496,12 +494,14 @@ public class Timetable extends AbstractProblem {
 		return tokens;
 	}
 	
-	private void print() {
+	private void printOut() {
 		
-		String [] dias = {"SEG", "TER", "QUA", "QUI", "SEX"};
+		String [] dias = {"Segunda-Feira", "Terça-Feira", "Quarta-Feira", "Quinta-Feira", "Sexta-Feira"};
 		String [] horas = {"16:50", "17:40", "18:30", "19:20", "20:10", "21:00", "21:50"};
 			 
 		Grade [] grades = new Grade[periodos.length];
+		
+		int count = 0;
 		 
 		for (int k = 0; k < periodos.length; k++) { 
 			grades[k] = new Grade(horas.length, dias.length);
@@ -513,15 +513,59 @@ public class Timetable extends AbstractProblem {
 				
 			for (int j = 0; j < aulas[i]; j++) {
 				
-				int [] tokens = getTokens(horariosDisciplina[i][j]);
-				
-				System.out.println(tokens[0] + "," + tokens[1]);
-				
-				grades[k].getGrade()[tokens[0]][tokens[1]] = getDisciplina(disciplinas[i]);
+				int [] tokens = getTokens(horariosDisciplina[i][j]);	
+				grades[k].getGrade()[tokens[1]][tokens[0]] = getDisciplina(disciplinas[i]);
 			}
 		}
+		
+		for (Grade grade : grades) {
 			
-		System.out.println(grades.length);
+			System.out.println("Período: SI." + (count + 1));
+			count += 1;
+			
+			System.out.print("\n+-----+-------------------------+-------------------------+-------------------------+");
+			System.out.println("-------------------------+-------------------------+");
+			System.out.format("%2s", "|HORAS|");
+			
+			for (int i = 0; i < dias.length; i++) {
+				
+				System.out.format("%-25s", dias[i]);
+				
+				if ((i+1) < dias.length) {
+					System.out.print("|");
+				}
+			}
+			
+			System.out.print("|");
+			System.out.print("\n+-----+-------------------------+-------------------------+-------------------------+");
+			System.out.println("-------------------------+-------------------------+");
+			
+			for (int i = 0; i < grade.getGrade().length; i++) {
+				
+				for (int j = 0; j < grade.getGrade()[i].length; j++) {
+					
+					if (j == 0) {
+						System.out.format("%2s" , "|" + horas[i] + "|");
+					}
+					
+					System.out.format("%-25s", grade.getGrade()[i][j]);
+					
+					if ((j+1) < grade.getGrade()[i].length) {
+						System.out.print("|");
+					}
+				}
+				
+				System.out.print("|");
+				System.out.print("\n+-----+-------------------------+-------------------------+-------------------------+");
+				System.out.println("-------------------------+-------------------------+");
+			}
+			
+			System.out.println("\n");
+			
+
+		}
+		
+		System.out.println();
 	}
 	
 	private String getDisciplina(IntVar disciplina) {
@@ -530,10 +574,6 @@ public class Timetable extends AbstractProblem {
 	
 	private String getHorario(IntVar horario) {
 		return HorarioData.getHorarios()[horario.getValue()];
-	}
-	
-	private String getProfessor(IntVar professor) {
-		return ProfessorData.getProfessores()[professor.getValue()];
 	}
 
 	@Override
@@ -545,35 +585,9 @@ public class Timetable extends AbstractProblem {
 			
 			do {
 				
-			//	print();
-				
 				count += 1;
 				
-				String [] dias = {"SEG", "TER", "QUA", "QUI", "SEX"};
-				String [] horas = {"16:50", "17:40", "18:30", "19:20", "20:10", "21:00", "21:50"};
-					 
-				Grade [] grades = new Grade[periodos.length];
-				 
-				for (int k = 0; k < periodos.length; k++) { 
-					grades[k] = new Grade(horas.length, dias.length);
-				 }
-					 
-				for (int i = 0; i < disciplinas.length; i++) {
-						
-					int k = getPeriodoDisciplina(disciplinas[i].getValue());
-						
-					for (int j = 0; j < aulas[i]; j++) {
-						
-						int [] tokens = getTokens(horariosDisciplina[i][j]);	
-						grades[k].getGrade()[tokens[1]][tokens[0]] = getDisciplina(disciplinas[i]);
-						
-						System.out.println(tokens[1] + "," + tokens[0]);
-					}
-					
-					System.out.println();
-				}
-				
-				System.out.println("Boo");
+				printOut();
 				
 			} while (solver.nextSolution() == Boolean.TRUE && count < 1);
 			
