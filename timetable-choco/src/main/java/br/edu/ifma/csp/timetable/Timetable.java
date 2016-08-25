@@ -470,6 +470,85 @@ public class Timetable extends AbstractProblem {
 	public void createSolver() {
 		solver = new Solver("Timetable");
 	}
+	
+	private int [] getTokens(IntVar horario) {
+		
+		int [] tokens = new int[2];
+		
+		String [] dias = {"SEG", "TER", "QUA", "QUI", "SEX"};
+		String [] horas = {"16:50", "17:40", "18:30", "19:20", "20:10", "21:00", "21:50"};
+		
+		String str = getHorario(horario);
+		
+		for (int i = 0; i < dias.length; i++) {
+			
+			if (str.split("_")[0].equals(dias[i])) {
+				tokens[0] = i;
+			}
+		}
+		
+		for (int i = 0; i < horas.length; i++) {
+			if (str.split("_")[0].equals(horas[i])) {
+				tokens[1] = i;
+			}
+		}
+		
+		return tokens;
+	}
+	
+	private void print() {
+		
+		String [] dias = {"SEG", "TER", "QUA", "QUI", "SEX"};
+		String [] horas = {"16:50", "17:40", "18:30", "19:20", "20:10", "21:00", "21:50"};
+		
+		/* int k = 0;
+		 
+		 while (k < 5) {*/
+//		for (int k = 0; k < periodos.length; k++) {
+			 
+			 Grade [] grades = new Grade[periodos.length];
+			 
+			 for (int k = 0; k < periodos.length; k++) {
+				 
+				 grades[k] = new Grade(dias.length, horarios.length);
+				 
+				 for (int i = 0; i < disciplinas.length; i++) {
+					 
+					 	
+						
+//						String [][][] schedule = new String[periodos.length][horas.length][dias.length];
+						
+//						int k = getPeriodoDisciplina(disciplinas[i].getValue());
+						
+						for (int j = 0; j < aulas[i]; j++) {
+							
+							int [] tokens = getTokens(horariosDisciplina[i][j]);
+							
+							grades[k].getGrade()[tokens[0]][tokens[1]] = getDisciplina(disciplinas[i]);
+						}
+					}
+			 }
+		
+			
+			 System.out.println(grades.length);
+			
+	/*		k++;
+		}*/
+		
+	//	System.out.println(schedule.length);
+	}
+	
+	private String getDisciplina(IntVar disciplina) {
+		return DisciplinaData.getDisciplinas()[disciplina.getValue()];
+	}
+	
+	private String getHorario(IntVar horario) {
+		return HorarioData.getHorarios()[horario.getValue()];
+	}
+	
+	private String getProfessor(IntVar professor) {
+		return ProfessorData.getProfessores()[professor.getValue()];
+	}
 
 	@Override
 	public void prettyOut() {
@@ -480,18 +559,24 @@ public class Timetable extends AbstractProblem {
 			
 			do {
 				
+				print();
+				
 				count += 1;
 				
-				for (int i = 0; i < disciplinas.length; i++) {
-					
-					System.out.print(disciplinas[i].getName() + " = " + DisciplinaData.getDisciplinas()[disciplinas[i].getValue()] + ", ");
-					System.out.println(professores[i].getName() + " = " + ProfessorData.getProfessores()[professores[i].getValue()]);
-					
-					for (int j = 0; j < aulas[i]; j++) {
-						
-						System.out.println(horariosDisciplina[i][j].getName() + " = " + HorarioData.getHorarios()[horariosDisciplina[i][j].getValue()]);
-					}
-				}
+//				for (int i = 0; i < disciplinas.length; i++) {
+//					
+//					System.out.print(disciplinas[i].getName() + " = " + getDisciplina(disciplinas[i]) + ", ");
+//					System.out.println(professores[i].getName() + " = " + getProfessor(professores[i]));
+//					
+//					for (int j = 0; j < aulas[i]; j++) {
+//						
+//						System.out.println(horariosDisciplina[i][j].getName() + " = " + getHorario(horariosDisciplina[i][j]));
+//					}
+//				}
+				
+				
+				
+				System.out.println("Boo");
 				
 			} while (solver.nextSolution() == Boolean.TRUE && count < 1);
 			

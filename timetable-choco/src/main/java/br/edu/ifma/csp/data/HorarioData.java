@@ -9,45 +9,45 @@ public class HorarioData {
 	
 	static {
 		
-		horarios.add("SEG_1650");
-		horarios.add("SEG_1740");
-		horarios.add("SEG_1830");
-		horarios.add("SEG_1920");
-		horarios.add("SEG_2010");
-		horarios.add("SEG_2100");
-		horarios.add("SEG_2150");
+		horarios.add("SEG_16:50");
+		horarios.add("SEG_17:40");
+		horarios.add("SEG_18:30");
+		horarios.add("SEG_19:20");
+		horarios.add("SEG_20:10");
+		horarios.add("SEG_21:00");
+		horarios.add("SEG_21:50");
 		
-		horarios.add("TER_1650");
-		horarios.add("TER_1740");
-		horarios.add("TER_1830");
-		horarios.add("TER_1920");
-		horarios.add("TER_2010");
-		horarios.add("TER_2100");
-		horarios.add("TER_2150");
+		horarios.add("TER_16:50");
+		horarios.add("TER_17:40");
+		horarios.add("TER_18:30");
+		horarios.add("TER_19:20");
+		horarios.add("TER_20:10");
+		horarios.add("TER_21:00");
+		horarios.add("TER_21:50");
 		
-		horarios.add("QUA_1650");
-		horarios.add("QUA_1740");
-		horarios.add("QUA_1830");
-		horarios.add("QUA_1920");
-		horarios.add("QUA_2010");
-		horarios.add("QUA_2100");
-		horarios.add("QUA_2150");
+		horarios.add("QUA_16:50");
+		horarios.add("QUA_17:40");
+		horarios.add("QUA_18:30");
+		horarios.add("QUA_19:20");
+		horarios.add("QUA_20:10");
+		horarios.add("QUA_21:00");
+		horarios.add("QUA_21:50");
 		
-		horarios.add("QUI_1650");
-		horarios.add("QUI_1740");
-		horarios.add("QUI_1830");
-		horarios.add("QUI_1920");
-		horarios.add("QUI_2010");
-		horarios.add("QUI_2100");
-		horarios.add("QUI_2150");
+		horarios.add("QUI_16:50");
+		horarios.add("QUI_17:40");
+		horarios.add("QUI_18:30");
+		horarios.add("QUI_19:20");
+		horarios.add("QUI_20:10");
+		horarios.add("QUI_21:00");
+		horarios.add("QUI_21:50");
 		
-		horarios.add("SEX_1650");
-		horarios.add("SEX_1740");
-		horarios.add("SEX_1830");
-		horarios.add("SEX_1920");
-		horarios.add("SEX_2010");
-		horarios.add("SEX_2100");
-		horarios.add("SEX_2150");
+		horarios.add("SEX_16:50");
+		horarios.add("SEX_17:40");
+		horarios.add("SEX_18:30");
+		horarios.add("SEX_19:20");
+		horarios.add("SEX_20:10");
+		horarios.add("SEX_21:00");
+		horarios.add("SEX_21:50");
 	}
 	
 	public static String [] getHorarios() {
