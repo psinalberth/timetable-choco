@@ -548,7 +548,7 @@ public class Timetable extends AbstractProblem {
 						System.out.format("%2s" , "|" + horas[i] + "|");
 					}
 					
-					System.out.format("%-25s", grade.getGrade()[i][j]);
+					System.out.format("%-25s", grade.getGrade()[i][j] != null ? grade.getGrade()[i][j] : "");
 					
 					if ((j+1) < grade.getGrade()[i].length) {
 						System.out.print("|");
