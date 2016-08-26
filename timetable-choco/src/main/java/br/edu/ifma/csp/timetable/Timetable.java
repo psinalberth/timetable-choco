@@ -14,6 +14,7 @@ import org.chocosolver.util.ESat;
 
 import br.edu.ifma.csp.data.DisciplinaData;
 import br.edu.ifma.csp.data.HorarioData;
+import br.edu.ifma.csp.data.ProfessorData;
 
 /**
  * Modelo de Timetable utilizado na resolução do Problema de Alocação de Horários do IFMA. <br>
@@ -521,7 +522,6 @@ public class Timetable extends AbstractProblem {
 		for (Grade grade : grades) {
 			
 			System.out.println("Período: SI." + (count + 1));
-			count += 1;
 			
 			System.out.print("\n+-----+-------------------------+-------------------------+-------------------------+");
 			System.out.println("-------------------------+-------------------------+");
@@ -560,8 +560,24 @@ public class Timetable extends AbstractProblem {
 				System.out.println("-------------------------+-------------------------+");
 			}
 			
+			System.out.println();
+			
+			for (int i = 0; i < periodos[count].length; i++) {
+				
+				System.out.print(getDisciplina(disciplinas[periodos[count][i]]) + " = " + getProfessor(professores[periodos[count][i]]));
+				
+				if ((i+1) < periodos[count].length) {
+					System.out.print(", ");
+				}
+				
+				if (i == 4) {
+					System.out.println();
+				}
+			}
+			
 			System.out.println("\n");
 			
+			count += 1;
 
 		}
 		
@@ -570,6 +586,10 @@ public class Timetable extends AbstractProblem {
 	
 	private String getDisciplina(IntVar disciplina) {
 		return DisciplinaData.getDisciplinas()[disciplina.getValue()];
+	}
+	
+	private String getProfessor(IntVar professor) {
+		return ProfessorData.getProfessores()[professor.getValue()];
 	}
 	
 	private String getHorario(IntVar horario) {
