@@ -9,6 +9,8 @@ public class HorarioData {
 	
 	static {
 		
+		horarios.add("SEG_15:10");
+		horarios.add("SEG_16:00");
 		horarios.add("SEG_16:50");
 		horarios.add("SEG_17:40");
 		horarios.add("SEG_18:30");
@@ -17,6 +19,8 @@ public class HorarioData {
 		horarios.add("SEG_21:00");
 		horarios.add("SEG_21:50");
 		
+		horarios.add("TER_15:10");
+		horarios.add("TER_16:00");
 		horarios.add("TER_16:50");
 		horarios.add("TER_17:40");
 		horarios.add("TER_18:30");
@@ -25,6 +29,8 @@ public class HorarioData {
 		horarios.add("TER_21:00");
 		horarios.add("TER_21:50");
 		
+		horarios.add("QUA_15:10");
+		horarios.add("QUA_16:00");
 		horarios.add("QUA_16:50");
 		horarios.add("QUA_17:40");
 		horarios.add("QUA_18:30");
@@ -33,6 +39,8 @@ public class HorarioData {
 		horarios.add("QUA_21:00");
 		horarios.add("QUA_21:50");
 		
+		horarios.add("QUI_15:10");
+		horarios.add("QUI_16:00");
 		horarios.add("QUI_16:50");
 		horarios.add("QUI_17:40");
 		horarios.add("QUI_18:30");
@@ -41,6 +49,8 @@ public class HorarioData {
 		horarios.add("QUI_21:00");
 		horarios.add("QUI_21:50");
 		
+		horarios.add("SEX_15:10");
+		horarios.add("SEX_16:00");
 		horarios.add("SEX_16:50");
 		horarios.add("SEX_17:40");
 		horarios.add("SEX_18:30");
