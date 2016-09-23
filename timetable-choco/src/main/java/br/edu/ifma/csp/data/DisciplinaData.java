@@ -10,16 +10,16 @@ public class DisciplinaData {
 	static {
 		
 		disciplinas.add("Cálculo I");
-		disciplinas.add("Cálculo Vetorial");
+		disciplinas.add("Cálculo Vet.");
 		disciplinas.add("Filosofia");
 		disciplinas.add("ICC");
-		disciplinas.add("Metodologia Científica");
+		disciplinas.add("Met. Científica");
 		
-		disciplinas.add("Fundamentos de S.I");
+		disciplinas.add("Fund. de S.I");
 		disciplinas.add("Inglês");
 		disciplinas.add("LP I");
-		disciplinas.add("Matemática Discreta");
-		disciplinas.add("Org. Arq. Computadores");
+		disciplinas.add("Mat. Discreta");
+		disciplinas.add("Org. Arq. Comp.");
 		disciplinas.add("Prob. Estatística");
 		
 		disciplinas.add("Álgebra Linear");
@@ -36,7 +36,7 @@ public class DisciplinaData {
 		
 		disciplinas.add("Análise I");
 		disciplinas.add("BD II");
-		disciplinas.add("Gestão e organização");
+		disciplinas.add("Gestão e Org.");
 		disciplinas.add("Lab. BD");
 		disciplinas.add("LP III");
 		disciplinas.add("Redes II");
@@ -46,7 +46,7 @@ public class DisciplinaData {
 		disciplinas.add("IA");
 		disciplinas.add("LP Web");
 		
-		disciplinas.add("Comp. Ética e Sociedade");
+		disciplinas.add("Ética e Soc.");
 		disciplinas.add("IPO");
 		disciplinas.add("Monografia I");
 		

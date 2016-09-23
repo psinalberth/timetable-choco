@@ -7,6 +7,7 @@ import org.chocosolver.samples.AbstractProblem;
 import org.chocosolver.solver.Solver;
 import org.chocosolver.solver.constraints.IntConstraintFactory;
 import org.chocosolver.solver.constraints.LogicalConstraintFactory;
+import org.chocosolver.solver.constraints.extension.Tuples;
 import org.chocosolver.solver.constraints.nary.alldifferent.AllDifferent;
 import org.chocosolver.solver.explanations.ExplanationFactory;
 import org.chocosolver.solver.variables.IntVar;
@@ -35,6 +36,7 @@ import br.edu.ifma.csp.data.ProfessorData;
  * 		<li>Executar busca</li>
  * 		<li>Recuperar resultado(s)</li>
  *  </ol>
+ *  
  * @author inalberth
  *
  */
@@ -71,6 +73,10 @@ public class Timetable extends AbstractProblem {
         4
     };
 	
+	int disciplinasLaboratorio [] = new int[]{3, 7, 12, 13, 16, 17, 18, 19, 21, 22, 24, 25, 27, 28, 29, 30};
+	
+	int laboratorios [] = new int[] {0, 1, 2, 3, 4};
+	
 	int periodos [][] = {
 		
 		new int [] {0, 1, 2, 3, 4},
@@ -89,8 +95,6 @@ public class Timetable extends AbstractProblem {
 	IntVar [][] horariosProfessor;
 	IntVar [][] horariosDisciplina;
 	IntVar [][] horariosLocal;
-	
-	IntVar[][] locaisOcupados;
 	
 	List<Timeslot> timeslots;
 
@@ -128,8 +132,6 @@ public class Timetable extends AbstractProblem {
 				
 				horariosDisciplina[i][j] = horario;
 				horariosLocal[i][j] = local;
-				
-			//	loc.add(local);
 			}
 			
 			timeslots.add(timeslot);	
@@ -152,8 +154,41 @@ public class Timetable extends AbstractProblem {
 		manterProfessoresComHorarioUnicoConstraint();
 		
 		manterLocaisComHorarioUnicoConstraint();
+		
+		manterLocaisComPreferenciaLocalConstraint();
 	}
 	
+	private void manterLocaisComPreferenciaLocalConstraint() {
+		
+		Tuples tuples = new Tuples(true);
+		
+		for (int i = 0; i < disciplinas.length; i++) {
+			
+			if (isLaboratorioObrigatorio(i)) {
+			
+				for (int j = 0; j < laboratorios.length; j++) {
+					tuples.add(i, laboratorios[j]);
+				}
+				
+			} else {
+				
+				for (int j = 0; j < LocalData.getLocais().length; j++) {
+					
+					if (!isLaboratorio(j)) {
+						tuples.add(i, j);
+					}
+				}
+			}
+		}
+		
+		for (int i = 0; i < disciplinas.length; i++) {
+				
+			for (int j = 0; j < horariosLocal[i].length; j++) {
+				solver.post(IntConstraintFactory.table(disciplinas[i], horariosLocal[i][j], tuples, "AC3bit+rm"));
+			}
+		}
+	}
+
 	/**
 	 * <b>Restrição Forte (Pedagógica):</b> <br>
 	 * 
@@ -181,50 +216,54 @@ public class Timetable extends AbstractProblem {
 				IntVar horario5 = timeslot.getHorarios().get(4);
 				IntVar horario6 = timeslot.getHorarios().get(5);
 				
-				//solver.post(IntConstraintFactory.not_member(horario3, new int[]{0, 7, 14, 21, 28}));
-				//solver.post(IntConstraintFactory.not_member(horario6, new int[]{0, 7, 14, 21, 28}));
+				IntVar local1 = timeslot.getLocais().get(0);
+				IntVar local2 = timeslot.getLocais().get(1);
+				IntVar local3 = timeslot.getLocais().get(2);
+				IntVar local4 = timeslot.getLocais().get(3);
+				IntVar local5 = timeslot.getLocais().get(4);
+				IntVar local6 = timeslot.getLocais().get(5);
+				
+				solver.post(IntConstraintFactory.arithm(local1, "=", local2));
+				solver.post(IntConstraintFactory.arithm(local2, "=", local3));
+				solver.post(IntConstraintFactory.arithm(local3, "=", local4));
+				solver.post(IntConstraintFactory.arithm(local4, "=", local5));
+				solver.post(IntConstraintFactory.arithm(local5, "=", local6));
 				
 				solver.post(LogicalConstraintFactory.or(
 								
 								LogicalConstraintFactory.and(
 															 IntConstraintFactory.arithm(horario3, "-", horario1, "=", 2),
-															 //IntConstraintFactory.arithm(horario3, "-", horario2, "=", 1),
 													 		 IntConstraintFactory.arithm(horario4, "-", horario3, "=", 16),
-													 		 IntConstraintFactory.arithm(horario6, "-", horario4, "=", 2)),
+													 		 IntConstraintFactory.arithm(horario6, "-", horario4, "=", 2)
+//															 IntConstraintFactory.arithm(local2, "=", local3),
+															 ),
 								
 								LogicalConstraintFactory.and(IntConstraintFactory.arithm(horario3, "-", horario2, "=", 17),
-															 IntConstraintFactory.arithm(horario5, "-", horario4, "=", 17)))
+															 IntConstraintFactory.arithm(horario5, "-", horario4, "=", 17)
+//															 IntConstraintFactory.arithm(local2, "=", local3),
+//															 IntConstraintFactory.arithm(local3, "=", local4)
+															 ))
 						);
 			} else if (aula == 5) {
 				
 				IntVar horario1 = timeslot.getHorarios().get(0);
-				//IntVar horario2 = timeslot.getHorarios().get(1);
 				IntVar horario3 = timeslot.getHorarios().get(2);
 				IntVar horario4 = timeslot.getHorarios().get(3);
-				IntVar horario5 = timeslot.getHorarios().get(4);
 				
-//				solver.post(IntConstraintFactory.not_member(horario1, new int [] {6, 13, 20, 27}));
-//				solver.post(IntConstraintFactory.not_member(horario4, new int [] {6, 13, 20, 27}));
+				IntVar local1 = timeslot.getLocais().get(0);
+				IntVar local2 = timeslot.getLocais().get(1);
+				IntVar local3 = timeslot.getLocais().get(2);
+				IntVar local4 = timeslot.getLocais().get(3);
+				IntVar local5 = timeslot.getLocais().get(4);
+				
+				solver.post(IntConstraintFactory.arithm(local1, "=" , local2));
+				solver.post(IntConstraintFactory.arithm(local2, "=" , local3));
+				solver.post(IntConstraintFactory.arithm(local3, "=" , local4));
+				solver.post(IntConstraintFactory.arithm(local4, "=" , local5));
 				
 				solver.post(IntConstraintFactory.arithm(horario3, "-", horario1, "=", 2));
 				solver.post(IntConstraintFactory.arithm(horario4, "-", horario3, "=", 16));
-				
-//				solver.post(
-//						LogicalConstraintFactory.or(
 								
-//								LogicalConstraintFactory.and(
-//															 IntConstraintFactory.arithm(horario3, "-", horario1, "=", 2),
-															 //IntConstraintFactory.arithm(horario3, "-", horario2, "=", 1),
-//													 		 IntConstraintFactory.arithm(horario4, "-", horario3, "=", 11),
-//													 		 IntConstraintFactory.arithm(horario5, "-", horario4, "=", 1))
-								
-								/*LogicalConstraintFactory.and(IntConstraintFactory.arithm(horario3, "-", horario1, ">=", 12),
-															 //IntConstraintFactory.arithm(horario3, "-", horario2, "=", 1),
-													 		 IntConstraintFactory.arithm(horario4, "-", horario3, "=", 1),
-													 		 IntConstraintFactory.arithm(horario5, "-", horario4, "=", 1))*/
-//								)
-//							);
-				
 			} else if (aula == 4) {
 				
 				IntVar horario1 = timeslot.getHorarios().get(0);
@@ -238,20 +277,13 @@ public class Timetable extends AbstractProblem {
 				IntVar local4 = timeslot.getLocais().get(3);
 				
 				solver.post(IntConstraintFactory.arithm(horario2, "-", horario1, "=", 1));
-				solver.post(IntConstraintFactory.arithm(horario3, "-", horario2, ">=", 17));
+				solver.post(IntConstraintFactory.arithm(horario3, "-", horario2, "=", 17));
 				solver.post(IntConstraintFactory.arithm(horario4, "-", horario3, "=", 1));
 				
 				solver.post(IntConstraintFactory.arithm(local1, "=" , local2));
+				solver.post(IntConstraintFactory.arithm(local2, "=" , local3));
 				solver.post(IntConstraintFactory.arithm(local3, "=" , local4));
 				
-				/*solver.post(LogicalConstraintFactory.or(
-						
-						LogicalConstraintFactory.and(IntConstraintFactory.arithm(horario2, "-", horario1, "=", 1),
-											 		 IntConstraintFactory.arithm(horario4, "-", horario3, ">=", 14)),
-						
-						LogicalConstraintFactory.and(IntConstraintFactory.arithm(horario3, "-", horario2, ">=", 14),
-													 IntConstraintFactory.arithm(horario5, "-", horario4, ">=", 14)))
-				);*/
 			} else if (aula == 3) {
 				
 				IntVar horario1 = timeslot.getHorarios().get(0);
@@ -391,7 +423,7 @@ public class Timetable extends AbstractProblem {
 				
 				IntVar z = VariableFactory.bounded("z", 0, 100000, solver);
 				
-				//solver.post(IntConstraintFactory.sum(new IntVar[]{VariableFactory.scale(horario, 1000), local}, z));
+				solver.post(IntConstraintFactory.sum(new IntVar[]{VariableFactory.scale(horario, 1000), local}, z));
 				
 				list.add(z);
 			}
@@ -451,7 +483,7 @@ public class Timetable extends AbstractProblem {
 	 */
 	
 	private void manterDisciplinasComOfertaUnicaConstraint() {
-		solver.post(new AllDifferent(disciplinas, "DEFAULT"));
+		solver.post(new AllDifferent(disciplinas, "NEQS"));
 	}
 	
 	
@@ -521,8 +553,8 @@ public class Timetable extends AbstractProblem {
 	@Override
 	public void configureSearch() {
 		//solver.set(IntStrategyFactory.domOverWDeg(solver.retrieveIntVars(), 2000022L));
-//		solver.set(IntStrategyFactory.custom(new VariableSelectorWithTies<>(new FirstFail(), new Random(123L)), new IntDomainMin(), solver.retrieveIntVars()));
-		//solver.makeCompleteSearch(true);
+	//	solver.set(IntStrategyFactory.custom(new VariableSelectorWithTies<>(new FirstFail(), new Random(123L)), new IntDomainMin(), solver.retrieveIntVars()));
+		solver.makeCompleteSearch(true);
 	}
 	
 	@Override
@@ -575,7 +607,7 @@ public class Timetable extends AbstractProblem {
 			for (int j = 0; j < aulas[i]; j++) {
 				
 				int [] tokens = getTokens(horariosDisciplina[i][j]);	
-				grades[k].getGrade()[tokens[1]][tokens[0]] = getDisciplina(disciplinas[i]);// + " " + getLocal(horariosLocal[i][j]);
+				grades[k].getGrade()[tokens[1]][tokens[0]] = getDisciplina(disciplinas[i]) + " " + getLocal(horariosLocal[i][j]);
 			}
 		}
 		
@@ -657,6 +689,31 @@ public class Timetable extends AbstractProblem {
 	
 	private String getLocal(IntVar local) {
 		return LocalData.getLocais()[local.getValue()];
+	}
+	
+	private boolean isLaboratorioObrigatorio(int disciplina) {
+		
+		for (int i = 0; i < disciplinasLaboratorio.length; i++) {
+			
+			if (disciplina == disciplinasLaboratorio[i]) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
+	private boolean isLaboratorio(int laboratorio) {
+		
+		for (int i = 0; i < laboratorios.length; i++) {
+			
+			if (laboratorio == laboratorios[i]) {
+				return true;
+			}
+			
+		}
+		
+		return false;
 	}
 
 	@Override
